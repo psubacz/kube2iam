@@ -44,6 +44,7 @@ func addFlags(s *server.Server, fs *pflag.FlagSet) {
 	fs.BoolVar(&s.UseRegionalStsEndpoint, "use-regional-sts-endpoint", false, "use the regional sts endpoint if AWS_REGION is set")
 	fs.BoolVar(&s.Verbose, "verbose", false, "Verbose")
 	fs.BoolVar(&s.Version, "version", false, "Print the version and exits")
+	fs.StringVar(&s.StsEndpointOverride, "sts-endpoint-override", s.StsEndpointOverride, "Override for sts endpoint for private and nonstandard aws sts endpoints.")
 }
 
 func main() {

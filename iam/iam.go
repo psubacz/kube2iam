@@ -165,8 +165,8 @@ func loadRegions() (*ec2.DescribeRegionsOutput, error) {
 	return regionsCache.Value().(*ec2.DescribeRegionsOutput), nil
 }
 
-// AssumeRole returns an IAM role Credentials using AWS STS.
-func (iam *Client) AssumeRole(roleARN, externalID string, remoteIP string, sessionTTL time.Duration) (*Credentials, error) {
+// AssumeRole returns an IAM role Credentials using AWS STS. 
+func (iam *Client) AssumeRole(roleARN, externalID string, remoteIP string, sessionTTL time.Duration, StsEndpointOverride string) (*Credentials, error) {
 	hitCache := true
 	item, err := cache.Fetch(roleARN, sessionTTL, func() (interface{}, error) {
 		hitCache = false
@@ -185,7 +185,7 @@ func (iam *Client) AssumeRole(roleARN, externalID string, remoteIP string, sessi
 			return nil, err
 		}
 
-		var customSTSResolver = aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+		var customSTSResolver = aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {	
 			if service == sts.ServiceID && IsValidRegion(region, regions) {
 				return aws.Endpoint{
 					URL:           GetEndpointFromRegion(region),
@@ -193,6 +193,13 @@ func (iam *Client) AssumeRole(roleARN, externalID string, remoteIP string, sessi
 				}, nil
 			}
 
+			// Allow for the override of STS endpoints for nonstandard endpoints.
+			if StsEndpointOverride != ""{
+				return aws.Endpoint{
+					URL:           StsEndpointOverride,
+					SigningRegion: region,
+				}, nil
+			}
 			// returning EndpointNotFoundError will allow the service to fallback to it's default resolution
 			return aws.Endpoint{}, &aws.EndpointNotFoundError{}
 		})

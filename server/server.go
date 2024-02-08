@@ -70,6 +70,7 @@ type Server struct {
 	NamespaceRestrictionFormat string
 	ResolveDupIPs              bool
 	UseRegionalStsEndpoint     bool
+	StsEndpointOverride		   string
 	AddIPTablesRule            bool
 	AutoDiscoverBaseArn        bool
 	AutoDiscoverDefaultRole    bool
@@ -334,7 +335,10 @@ func (s *Server) roleHandler(logger *log.Entry, w http.ResponseWriter, r *http.R
 		return
 	}
 
-	credentials, err := s.iam.AssumeRole(wantedRoleARN, externalID, remoteIP, s.IAMRoleSessionTTL)
+	credentials, err := s.iam.AssumeRole(wantedRoleARN, externalID, remoteIP, s.IAMRoleSessionTTL, s.StsEndpointOverride)
+
+	roleLogger.Infof("sts endpoint: %+v", s.StsEndpointOverride)
+
 	if err != nil {
 		roleLogger.Errorf("Error assuming role %+v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
