@@ -335,9 +335,12 @@ func (s *Server) roleHandler(logger *log.Entry, w http.ResponseWriter, r *http.R
 		return
 	}
 
-	credentials, err := s.iam.AssumeRole(wantedRoleARN, externalID, remoteIP, s.IAMRoleSessionTTL, s.StsEndpointOverride)
+	// report that which endpoint is being used.
+	if s.StsEndpointOverride != "" {
+		roleLogger.Infof("Using STS Endpoint Override: %+v", s.StsEndpointOverride)
+	}
 
-	roleLogger.Infof("sts endpoint: %+v", s.StsEndpointOverride)
+	credentials, err := s.iam.AssumeRole(wantedRoleARN, externalID, remoteIP, s.IAMRoleSessionTTL, s.StsEndpointOverride)
 
 	if err != nil {
 		roleLogger.Errorf("Error assuming role %+v", err)
