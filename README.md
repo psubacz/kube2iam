@@ -673,6 +673,13 @@ STS is a unique service in that it is actually considered a global service that 
 
 `kube2iam` supports the use of STS regional endpoints by using the `--use-regional-sts-endpoint` flag as well as by setting the appropriate `AWS_REGION` environment variable in your daemonset environment. With these two settings configured, `kube2iam` will use the STS api endpoint for that region. If you enable debug level logging, the sts endpoint used to retrieve credentials will be logged.
 
+Some regions have nonstandard STS endpoints that do not point to **https://sts.amazonaws.com** and dont use the standard regional naming convention **https://sts.<REGION>.amazonaws.com**. The `--sts-endpoint-override` flag allows for the region to be overridden to support these regions which takes a FQDN such as **https://sts.<REGION>.<DOMAIN>**.
+
+Example:
+```
+--sts-endpoint-override=https://sts.private.amazonaws.io
+```
+
 ### Metrics
 
 `kube2iam` exports a number of [Prometheus](https://github.com/prometheus/prometheus) metrics to assist with monitoring
